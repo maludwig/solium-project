@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "Project I did on the side for a company called Solium",
   "main": "main.js",
-  "dependencies": {},
+  "dependencies": {
+    "moment": "^2.18.1"
+  },
   "devDependencies": {
     "babel-cli": "^6.24.1",
     "babel-preset-env": "^1.4.0",

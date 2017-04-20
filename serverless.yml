@@ -16,8 +16,8 @@ provider:
 package:
   exclude:
     - node_modules/**
-#  include:
-#    - node_modules/request/**
+  include:
+    - node_modules/moment/**
 
 functions:
   echo:
