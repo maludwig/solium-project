@@ -1,0 +1,54 @@
+# serverless.yml
+# Primary Source: https://serverless.com/framework/docs/providers/aws/guide/serverless.yml/
+# Events Source: https://serverless.com/framework/docs/providers/aws/events/apigateway/
+
+service: BLANKSERVICE
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: dev
+  region: us-west-2
+  memorySize: 512
+  timeout: 5
+  profile: blankservice # aws configure --profile blankservice
+
+package:
+  exclude:
+    - node_modules/**
+#  include:
+#    - node_modules/request/**
+
+functions:
+  echo:
+    handler: lib/endpoints.echo
+    description: Repeats the input back to the requestor
+    events:
+      - http:
+          path: echo
+          method: get
+          cors: true
+      - http:
+          path: echo
+          method: post
+          cors: true
+  simulate_failure:
+    handler: lib/endpoints.simulate_failure
+    description: Fails withan HTTP 500 error response
+    events:
+      - http:
+          path: failure
+          method: get
+      - http:
+          path: failure
+          method: post
+  simulate_bad_request:
+    handler: lib/endpoints.simulate_bad_request
+    description: Fails withan HTTP 400 error response
+    events:
+      - http:
+          path: bad
+          method: get
+      - http:
+          path: bad
+          method: post
