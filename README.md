@@ -1,12 +1,29 @@
 # Blank Serverless Application w/ Babel
 
-### Development Dependencies
+### Local installation Development Dependencies
+
+Node 7 or higher with npm: https://nodejs.org/en/download/
+
+### Getting started locally
+
+First, clone down the repo:
+```
+$ git clone 
+```
+
+From the project directory, run the following to pull down all dependencies:
+```
+$ npm install
+```
+
+
+### Serverless Development Dependencies
 
 Python 3 (latest) with pip: https://www.python.org/downloads/
 
 Node 7 or higher with npm: https://nodejs.org/en/download/
 
-### Getting Started
+### Getting Started with Serverless
 
 First, you'll need to sign up for an Amazon Web Services (AWS) account, which will require a credit card:
 https://aws.amazon.com/free/
