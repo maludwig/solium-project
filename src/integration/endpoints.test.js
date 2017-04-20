@@ -7,11 +7,18 @@ var request = require('request').defaults({
 });
 
 // Change this to match the ServiceEndpoint item in the output of ```$ serverless deploy -v```
-const SERVICE_ENDPOINT = 'https://eysm8azp8f.execute-api.us-west-2.amazonaws.com/dev';
+// const SERVICE_ENDPOINT = 'https://asdf12345.execute-api.us-west-2.amazonaws.com/dev';
 
 
 describe("Integration tests for endpoints", function () {
     this.timeout(2000);
+    describe("Make sure the SERVICE_ENDPOINT has been set properly", function () {
+        it("Passes a regex check", function () {
+            const ENDPOINT_VALIDATING_REGEX = /^https:\/\/[a-z0-9]+\.execute-api\.[a-z0-9-]+.amazonaws.com\/[a-zA-Z0-9-]+$/;
+            expect(SERVICE_ENDPOINT).to.be.a('string');
+            expect(ENDPOINT_VALIDATING_REGEX.test(SERVICE_ENDPOINT)).to.be.true;
+        });
+    });
     describe("echo function", function () {
         it("GET returns an HTTP 200 JSON response containing an event and a context", function (done) {
             request.get({

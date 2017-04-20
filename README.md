@@ -61,7 +61,7 @@ The unit tests should now pass:
 $ npm test
 ```
 
-You will need Serverless if you want to publish this to AWS:
+You will need Serverless if you want to publish this to AWS, this command installs it globally:
 ```
 $ npm install -g serverless
 ```
@@ -72,7 +72,8 @@ $ serverless deploy -v
 ```
 
 Now you can make sure it all fits together nicely! Wander yourself into src/integration/endpoints.test.js, and set the 
-SERVICE_ENDPOINT to the value output by the deploy command, and run the integration tests:
+SERVICE_ENDPOINT to the value output by the deploy command, and run the integration tests to actually hit the new
+HTTPS endpoints hosted by AWS:
 ```
 $ npm run test-integration
 ```
