@@ -1,0 +1,37 @@
+{
+  "name": "blankserverless",
+  "version": "1.0.0",
+  "description": "A blank Serverless project, with unit tests and integration tests",
+  "main": "main.js",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "mocha": "^3.2.0",
+    "chai": "^3.5.0",
+    "request": "^2.81.0"
+  },
+  "scripts": {
+    "test": "mocha src/test",
+    "test-integration": "mocha src/integration",
+    "test-all": "mocha src/test src/integration",
+    "build": "babel src/ -d lib/",
+    "watch": "babel src/ -d lib/ --watch",
+    "deploy": "serverless deploy -v"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/maludwig/blank_serverless.git"
+  },
+  "keywords": [
+    "template",
+    "serverless",
+    "aws",
+    "lambda"
+  ],
+  "author": "Mitchell Ludwig <mitchell.ludwig@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/maludwig/blank_serverless/issues"
+  },
+  "homepage": "https://github.com/maludwig/blank_serverless#readme"
+}
