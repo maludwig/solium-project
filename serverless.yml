@@ -10,7 +10,7 @@ provider:
   stage: dev
   region: us-west-2
   memorySize: 512
-  timeout: 5
+  timeout: 50
   profile: blankservice # aws configure --profile blankservice
 
 package:
@@ -34,7 +34,7 @@ functions:
           cors: true
   simulate_failure:
     handler: lib/endpoints.simulate_failure
-    description: Fails withan HTTP 500 error response
+    description: Fails with an HTTP 500 error response
     events:
       - http:
           path: failure
@@ -44,7 +44,7 @@ functions:
           method: post
   simulate_bad_request:
     handler: lib/endpoints.simulate_bad_request
-    description: Fails withan HTTP 400 error response
+    description: Fails with an HTTP 400 error response
     events:
       - http:
           path: bad

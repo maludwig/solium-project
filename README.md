@@ -1,8 +1,10 @@
-# Blank Serverless Application w/ Babel
+# Solium Project - A Serverless Application with Babel
 
 ### Local installation Development Dependencies
 
 Node 7 or higher with npm: https://nodejs.org/en/download/
+
+Older versions of Node may work after building with Babel
 
 ### Getting started locally
 
@@ -16,6 +18,24 @@ From the project directory, run the following to pull down all dependencies:
 $ npm install
 ```
 
+Then build the project with babel to transpile it down to more compatible Javascript, a "lib" directory should
+appear under the project directory:
+```
+$ npm run build
+```
+
+When you are doing development, you should use this command to make Babel watch your "src" directory for changes and
+automatically transpile them to something more compatible.
+```
+$ npm run watch
+```
+
+The unit tests should now pass:
+```
+$ npm test
+```
+
+---
 
 ### Serverless Development Dependencies
 
@@ -61,7 +81,7 @@ From the project directory, run the following to pull down all dependencies:
 $ npm install
 ```
 
-Then build the project with babel to compile it down to more compatible Javascript, a "lib" directory should
+Then build the project with babel to transpile it down to more compatible Javascript, a "lib" directory should
 appear under the project directory:
 ```
 $ npm run build
