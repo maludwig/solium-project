@@ -3,35 +3,53 @@ Author: Mitchell Ludwig
 Date Created: 2017-04-19
  */
 
-console.log("See README.md for instructions on how to install and run this project");
-var parser = require('./src/stocks/parser');
-//
-// var readline = require('readline');
-// var rl = readline.createInterface({
-//     input: process.stdin,
-//     output: process.stdout,
-//     terminal: false
-// });
-// var entries_remaining;
-//
-// function read_first_line (line) {
-//     entries_remaining = parseInt(line, 10);
-//     rl.removeListener('line', read_first_line);
-//     rl.on('line', read_middle_line);
-// }
-// function read_middle_line (line) {
-//     entries_remaining--;
-//     if (entries_remaining == 0) {
-//         rl.removeListener('line', read_middle_line);
-//         rl.on('line', read_last_line);
-//     }
-// }
-// function read_last_line (line) {
-//     process.stderr.write("boo");
-//     console.log(`## ${line} ##`);
-// }
-//
-// rl.on('line', read_first_line);
+// console.log("See README.md for instructions on how to install and run this project");
+var stocks = require('./src/obj/stocks');
+var EmployeeDirectory = require('./src/obj/employee-directory');
+
+var readline = require('readline');
+var rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    terminal: false
+});
+var entries_remaining;
+var employee_directory = new EmployeeDirectory();
+
+function read_first_line (line) {
+    entries_remaining = parseInt(line, 10);
+    rl.removeListener('line', read_first_line);
+    rl.on('line', read_middle_line);
+}
+function read_middle_line (line) {
+    var stock_record = stocks.parseRecordLine(line);
+    var employee = employee_directory.createOrGetEmployee(stock_record._employee_id);
+    employee.addRecordToPorfilio(stock_record);
+
+    entries_remaining--;
+    if (entries_remaining == 0) {
+        rl.removeListener('line', read_middle_line);
+        rl.on('line', read_last_line);
+    }
+}
+function read_last_line (line) {
+    var stock_price_record = stocks.StockPriceRecord.parse(line);
+    var employees = employee_directory.employees;
+    var output_lines = [];
+    for (var employee_id in employees) {
+        if (employees.hasOwnProperty(employee_id)) {
+            var employee = employees[employee_id];
+            var earnings = employee.calculateEarningsAtPrice(stock_price_record);
+            output_lines.push(`${employee_id},${stocks.roundedString(earnings)}`);
+        }
+    }
+    for(var i = 0; i < output_lines.length - 1; i++) {
+        process.stdout.write(output_lines[i] + "\r\n");
+    }
+    process.stdout.write(output_lines[output_lines.length - 1]);
+}
+
+rl.on('line', read_first_line);
 // rl.on('close', function(){
 //     console.log(`## close ##`);
 // })

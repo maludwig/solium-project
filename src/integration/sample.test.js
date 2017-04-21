@@ -39,10 +39,10 @@ describe("Integration test to confirm that sample inputs produce correct output"
     });
     describe("Second sample", function () {
         it("Works with the date set to 20140101", generateHandler('templates/sample2-20140101-in.def', 'templates/sample2-20140101-out.def'));
-        it("Works with the date set to 20130614", generateHandler('templates/sample2-20130101-in.def', 'templates/sample2-20130101-out.def'));
+        it("Works with the date set to 20130101", generateHandler('templates/sample2-20130101-in.def', 'templates/sample2-20130101-out.def'));
     });
     describe("Third sample", function () {
         it("Works with the date set to 20140101", generateHandler('templates/sample3-20140101-in.def', 'templates/sample3-20140101-out.def'));
-        it("Works with the date set to 20130614", generateHandler('templates/sample3-20130101-in.def', 'templates/sample3-20130101-out.def'));
+        it("Works with the date set to 20130101", generateHandler('templates/sample3-20130101-in.def', 'templates/sample3-20130101-out.def'));
     });
 });

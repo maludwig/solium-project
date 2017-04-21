@@ -10,7 +10,7 @@ Older versions of Node may work after building with Babel
 
 First, clone down the repo:
 ```
-$ git clone 
+$ git clone https://github.com/maludwig/solium-project.git
 ```
 
 From the project directory, run the following to pull down all dependencies:
