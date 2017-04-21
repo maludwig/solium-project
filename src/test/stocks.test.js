@@ -2,109 +2,73 @@
  * Created by Mitchell on 4/20/2017.
  */
 var expect = require('chai').expect;
+var moment = require('moment');
 var stocks = require('../obj/stocks');
 
 describe("Stocks tests", function () {
-    describe("Base StockRecord", function () {
-        it("Eventually returns an event and a context", function (done) {
-            endpoints.echo({},{},function(error, response){
-                try {
-                    expect(error).to.be.null;
-                    expect(response.statusCode).to.equal('200');
-                    expect(response.body).to.be.a('string');
-                    expect(response.headers).to.deep.equal({
-                        'Content-Type': "application/json",
-                        "Access-Control-Allow-Origin": "*",
-                        "Access-Control-Allow-Credentials": true,
-                    });
-                    var parsed_body = JSON.parse(response.body);
-                    expect(parsed_body.error).to.be.undefined;
-                    var data = parsed_body.data;
-                    expect(data.event).to.deep.equal({});
-                    expect(data.context).to.deep.equal({});
-                    done();
-                } catch (exception) {
-                    done(exception);
-                }
-            });
+    describe("parseRecordLine function", function () {
+        it("Errors out when the line is not provided", function () {
+            expect(function () {
+                stocks.parseRecordLine();
+            }).to.throw(stocks.ParserError);
         });
-        it("Eventually returns an event and a context with data", function (done) {
-            var event = {
-                name: "Mitchell Ludwig",
-                pet: {
-                    species: "dog",
-                    age: 12
-                },
-            };
-            var context = {
-                time: "2017-01-01T13:59:12Z",
-            }
-            endpoints.echo(event,context,function(error, response){
-                try {
-                    expect(error).to.be.null;
-                    expect(response.statusCode).to.equal('200');
-                    expect(response.body).to.be.a('string');
-                    expect(response.headers).to.deep.equal({
-                        'Content-Type': "application/json",
-                        "Access-Control-Allow-Origin": "*",
-                        "Access-Control-Allow-Credentials": true,
-                    });
-                    var parsed_body = JSON.parse(response.body);
-                    expect(parsed_body.error).to.be.undefined;
-                    var data = parsed_body.data;
-                    expect(data.event).to.deep.equal(event);
-                    expect(data.context).to.deep.equal(context);
-                    done();
-                } catch (exception) {
-                    done(exception);
-                }
-            });
+        it("Errors out when the line is an empty string", function () {
+            expect(function () {
+                stocks.parseRecordLine("");
+            }).to.throw(stocks.ParserError);
         });
-    });
-
-    describe("simulate_failure function", function () {
-        it("Eventually returns an HTTP 500 response", function (done) {
-            endpoints.simulate_failure({},{},function(error, response){
-                try {
-                    expect(error).to.be.null;
-                    expect(response.statusCode).to.equal('500');
-                    expect(response.body).to.be.a('string');
-                    expect(response.headers).to.deep.equal({
-                        'Content-Type': "application/json",
-                        "Access-Control-Allow-Origin": "*",
-                        "Access-Control-Allow-Credentials": true,
-                    });
-                    var parsed_body = JSON.parse(response.body);
-                    expect(parsed_body.error).to.equal("Test failure response");
-                    expect(parsed_body.data).to.be.undefined;
-                    done();
-                } catch (exception) {
-                    done(exception);
-                }
-            });
+        it("Errors out when the line doesn't have enough comma separated values", function () {
+            expect(function () {
+                stocks.parseRecordLine("VEST,00E");
+            }).to.throw(stocks.ParserError);
         });
-    });
-
-    describe("simulate_bad_request function", function () {
-        it("Eventually returns an HTTP 400 error", function (done) {
-            endpoints.simulate_bad_request({},{},function(error, response){
-                try {
-                    expect(error).to.be.null;
-                    expect(response.statusCode).to.equal('400');
-                    expect(response.body).to.be.a('string');
-                    expect(response.headers).to.deep.equal({
-                        'Content-Type': "application/json",
-                        "Access-Control-Allow-Origin": "*",
-                        "Access-Control-Allow-Credentials": true,
-                    });
-                    var parsed_body = JSON.parse(response.body);
-                    expect(parsed_body.error).to.equal("Test bad request response");
-                    expect(parsed_body.data).to.be.undefined;
-                    done();
-                } catch (exception) {
-                    done(exception);
-                }
-            });
+        it("Errors out when the line does not have a valid code", function () {
+            expect(function () {
+                stocks.parseRecordLine("SHIRT,00E,20140101,1000,0.5");
+            }).to.throw(stocks.ParserError);
+        });
+        it("Errors out when the line is invalid", function () {
+            expect(function () {
+                stocks.parseRecordLine("VEST,002B,20120102,1000,KEVIN");
+            }).to.throw(stocks.ParserError);
+            expect(function () {
+                stocks.parseRecordLine("VEST,002B,20120102,KEVIN,1");
+            }).to.throw(stocks.ParserError);
+            expect(function () {
+                stocks.parseRecordLine("VEST,002B,20120102,KEVIN,KEVIN");
+            }).to.throw(stocks.ParserError);
+        });
+        it("Returns a valid VestStockRecord when a valid line is passed in", function () {
+            var record = stocks.parseRecordLine("VEST,002B,20120102,1000,0.45");
+            expect(record instanceof stocks.VestStockRecord).to.be.true;
+            expect(record.type_code).to.equal("VEST");
+            expect(record.employee_id).to.equal("002B");
+            expect(record.moment_recorded.isSame(moment("2012-01-02","YYYY-MM-DD"))).to.be.true;
+            expect(record.amount).to.equal(1000);
+            expect(record.grant_price).to.equal(0.45);
+            expect(record.toString()).to.equal("VEST,002B,20120102,1000,0.45");
+        });
+        it("Returns a valid PerfStockRecord when a valid line is passed in", function () {
+            var record = stocks.parseRecordLine("PERF,001B,20130102,1.5");
+            expect(record instanceof stocks.PerfStockRecord).to.be.true;
+            expect(record.type_code).to.equal("PERF");
+            expect(record.employee_id).to.equal("001B");
+            expect(record.moment_recorded.isSame(moment("2013-01-02","YYYY-MM-DD"))).to.be.true;
+            expect(record.multiplier).to.equal(1.5);
+            expect(record.toString()).to.equal("PERF,001B,20130102,1.5");
+        });
+        it("Returns a valid SaleStockRecord when a valid line is passed in", function () {
+            var record = stocks.parseRecordLine("SALE,001B,20120402,500,1.00");
+            expect(record instanceof stocks.SaleStockRecord).to.be.true;
+            expect(record.type_code).to.equal("SALE");
+            expect(record.employee_id).to.equal("001B");
+            expect(record.moment_recorded.isSame(moment("2012-04-02","YYYY-MM-DD"))).to.be.true;
+            expect(record.amount).to.equal(500);
+            expect(record.market_price).to.equal(1.00);
+            expect(record.toString()).to.equal("SALE,001B,20120402,500,1.00");
         });
     });
 });
+
+
+
