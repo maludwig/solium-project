@@ -8,6 +8,11 @@ var expect = require('chai').expect;
 var spawn = require('child_process').spawn;
 var fs = require('fs');
 
+var stocks = require('../obj/stocks');
+var Portfolio = require('../obj/portfolio');
+var Employee = require('../obj/employee');
+var EmployeeDirectory = require('../obj/employee-directory');
+
 // Change this to match the ServiceEndpoint item in the output of ```$ serverless deploy -v```
 // const SERVICE_ENDPOINT = 'https://asdf12345.execute-api.us-west-2.amazonaws.com/dev';
 
@@ -45,4 +50,85 @@ describe("Integration test to confirm that sample inputs produce correct output"
         it("Works with the date set to 20140101", generateHandler('templates/sample3-20140101-in.def', 'templates/sample3-20140101-out.def'));
         it("Works with the date set to 20130101", generateHandler('templates/sample3-20130101-in.def', 'templates/sample3-20130101-out.def'));
     });
+    describe("Third sample in detail", function () {
+        it("can do sample3, with vest, sale, and perf records correctly", function () {
+            var employee_directory = new EmployeeDirectory();
+            var stock_price_record = stocks.StockPriceRecord.parse("20140101,1.00");
+            var stock_record, employee, portfolio;
+            stock_record = stocks.parseRecordLine("VEST,001B,20120102,1000,0.45");
+            employee = employee_directory.createOrGetEmployee(stock_record._employee_id);
+            employee.addRecordToPorfilio(stock_record);
+            portfolio = employee.portfolio;
+
+            expect(portfolio.stock_quantity).to.equal(1000);
+            expect(portfolio.stock_records.length).to.equal(1);
+            expect(portfolio.value_purchased).to.equal(0);
+            expect(portfolio.value_vested).to.equal(450);
+            expect(portfolio.value_sold).to.equal(0);
+            expect(portfolio.value_earned).to.equal(0);
+            expect(employee.calculateValueAtPrice(stock_price_record)).to.equal(1000);
+            expect(employee.calculatePotentialEarningsAtPrice(stock_price_record)).to.equal(550);
+            expect(employee.calculateEarningsUntil(stock_price_record.moment_recorded)).to.equal(0);
+
+            stock_record = stocks.parseRecordLine("SALE,001B,20120402,500,1.00");
+            employee = employee_directory.createOrGetEmployee(stock_record._employee_id);
+            employee.addRecordToPorfilio(stock_record);
+            portfolio = employee.portfolio;
+
+            expect(portfolio.stock_quantity).to.equal(500);
+            expect(portfolio.stock_records.length).to.equal(2);
+            expect(portfolio.value_purchased).to.equal(500*0.45);
+            expect(portfolio.value_vested).to.equal(500*0.45);
+            expect(portfolio.value_sold).to.equal(500*1);
+            expect(portfolio.value_earned).to.equal(500*(1-0.45));
+            expect(employee.calculateValueAtPrice(stock_price_record)).to.equal(500);
+            expect(employee.calculatePotentialEarningsAtPrice(stock_price_record)).to.equal(500*(1-0.45));
+            expect(employee.calculateEarningsUntil(stock_price_record.moment_recorded)).to.equal(500*(1-0.45));
+
+            stock_record = stocks.parseRecordLine("VEST,002B,20120102,1000,0.45");
+            employee = employee_directory.createOrGetEmployee(stock_record._employee_id);
+            employee.addRecordToPorfilio(stock_record);
+            portfolio = employee.portfolio;
+
+            expect(portfolio.stock_quantity).to.equal(1000);
+            expect(portfolio.stock_records.length).to.equal(1);
+            expect(portfolio.value_purchased).to.equal(0);
+            expect(portfolio.value_vested).to.equal(1000*0.45);
+            expect(portfolio.value_sold).to.equal(0);
+            expect(portfolio.value_earned).to.equal(0);
+            expect(employee.calculateValueAtPrice(stock_price_record)).to.equal(1000*1);
+            expect(employee.calculatePotentialEarningsAtPrice(stock_price_record)).to.equal(550);
+            expect(employee.calculateEarningsUntil(stock_price_record.moment_recorded)).to.equal(0);
+
+            stock_record = stocks.parseRecordLine("PERF,001B,20130102,1.5");
+            employee = employee_directory.createOrGetEmployee(stock_record._employee_id);
+            employee.addRecordToPorfilio(stock_record);
+            portfolio = employee.portfolio;
+
+            expect(portfolio.stock_quantity).to.equal(500*1.5);
+            expect(portfolio.stock_records.length).to.equal(3);
+            expect(portfolio.value_purchased).to.equal(500*0.45);
+            expect(portfolio.value_vested).to.equal(500*1.5*0.45);
+            expect(portfolio.value_sold).to.equal(500*1);
+            expect(portfolio.value_earned).to.equal(500*(1-0.45));
+            expect(employee.calculateValueAtPrice(stock_price_record)).to.equal(500*1.5);
+            expect(employee.calculatePotentialEarningsAtPrice(stock_price_record)).to.equal(412.5);
+            expect(employee.calculateEarningsUntil(stock_price_record.moment_recorded)).to.equal(275);
+
+            stock_record = stocks.parseRecordLine("PERF,002B,20130102,1.5");
+            employee = employee_directory.createOrGetEmployee(stock_record._employee_id);
+            employee.addRecordToPorfilio(stock_record);
+            portfolio = employee.portfolio;
+
+            expect(portfolio.stock_quantity).to.equal(1000*1.5);
+            expect(portfolio.stock_records.length).to.equal(2);
+            expect(portfolio.value_purchased).to.equal(0);
+            expect(portfolio.value_vested).to.equal(1000*1.5*0.45);
+            expect(portfolio.value_sold).to.equal(0);
+            expect(portfolio.value_earned).to.equal(0);
+            expect(employee.calculateValueAtPrice(stock_price_record)).to.equal(1000*1.5*1);
+            expect(employee.calculatePotentialEarningsAtPrice(stock_price_record)).to.equal(550*1.5);
+            expect(employee.calculateEarningsUntil(stock_price_record.moment_recorded)).to.equal(0);
+        });
+    })
 });

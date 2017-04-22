@@ -105,6 +105,17 @@ class StockRecord {
         return this._moment_recorded;
     }
 
+    get sort_order() {
+        if (typeof this._priority === "undefined") {
+            throw new Error("Subclasses of StockRecord must have a priority, lower priorities are ordered first")
+        } else if (this._priority > 1000) {
+            throw new Error("Subclasses of StockRecord must have a priority value under 1000");
+        }
+        // Gives the unix timestamp in milliseconds, adds what should be a tiny priority number,
+        // so that if a record comes in a second later, it will not be misordered.
+        return this._moment_recorded.valueOf() + this._priority;
+    }
+
     applyToPortfolio(portfolio) {
         throw new Error("Not implemented");
     }
@@ -117,6 +128,7 @@ class StockRecord {
 class VestStockRecord extends StockRecord {
     constructor(employee_id, moment_recorded, amount, grant_price) {
         super("VEST", employee_id, moment_recorded);
+        this._priority = 100;
         if (typeof amount === "number" && !isNaN(amount)) {
             this._amount = amount;
         } else {
@@ -138,7 +150,7 @@ class VestStockRecord extends StockRecord {
     }
 
     applyToPortfolio(portfolio) {
-        portfolio.buyStock(this.amount, this.grant_price);
+        portfolio.vestStock(this.amount, this.grant_price);
     }
 
     toString() {
@@ -148,6 +160,7 @@ class VestStockRecord extends StockRecord {
 class PerfStockRecord extends StockRecord {
     constructor(employee_id, moment_recorded, multiplier) {
         super("PERF", employee_id, moment_recorded);
+        this._priority = 300;
         this._multiplier = multiplier;
     }
 
@@ -156,13 +169,16 @@ class PerfStockRecord extends StockRecord {
     }
 
     applyToPortfolio(portfolio) {
-        for (var stock_record of portfolio.stock_records) {
-            if (stock_record.moment_recorded.isSameOrBefore(this.moment_recorded)) {
-                if (stock_record instanceof VestStockRecord) {
-                    portfolio.buyStock(stock_record.amount * (this.multiplier - 1), stock_record.grant_price)
-                }
-            }
-        }
+        portfolio.multiplyStock(this.multiplier);
+    //     for (var stock_record of portfolio.stock_records) {
+    //         if (stock_record.moment_recorded.isSameOrBefore(this.moment_recorded)) {
+    //             if (stock_record instanceof VestStockRecord) {
+    //                 portfolio.vestStock(stock_record.amount * (this.multiplier - 1), stock_record.grant_price)
+    //             } else if (stock_record instanceof SaleStockRecord) {
+    //                 portfolio.removeStock(stock_record.amount * (this.multiplier - 1));
+    //             }
+    //         }
+    //     }
     }
 
     toString() {
@@ -172,6 +188,7 @@ class PerfStockRecord extends StockRecord {
 class SaleStockRecord extends StockRecord {
     constructor(employee_id, moment_recorded, amount, market_price) {
         super("SALE", employee_id, moment_recorded);
+        this._priority = 200;
         this._amount = amount;
         this._market_price = market_price;
     }

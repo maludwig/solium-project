@@ -19,6 +19,9 @@ class Employee {
     get stock_records () {
         return this._portfolio.stock_records;
     }
+    get portfolio () {
+        return this._portfolio;
+    }
     addRecordToPorfilio(stock_record) {
         if(stock_record instanceof stocks.StockRecord) {
             if(stock_record._employee_id === this._employee_id) {
@@ -33,12 +36,12 @@ class Employee {
     calculateValueAtPrice(stock_price_record) {
         return this._portfolio.valueAtPrice(stock_price_record);
     }
-    calculateEarningsAtPrice(stock_price_record) {
-        return this._portfolio.earningsAtPrice(stock_price_record);
+    calculatePotentialEarningsAtPrice(stock_price_record) {
+        return this._portfolio.earningsIfSoldAtPrice(stock_price_record);
     }
-    calculateSoldValueUntilMoment(calculate_until) {
+    calculateEarningsUntil(calculate_until) {
         this._portfolio.calculate_until = calculate_until;
-        return this._portfolio.value_sold;
+        return this._portfolio.value_earned;
     }
 }
 

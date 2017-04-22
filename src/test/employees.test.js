@@ -12,7 +12,7 @@ describe("Employee tests", function () {
             var mitch = new Employee("Mitchell");
             var stock_price_record = new stocks.StockPriceRecord(moment(),1);
             expect(mitch._employee_id).to.equal("Mitchell");
-            expect(mitch.stock_records).to.deep.equal([]);
+            expect(mitch.stock_records.length).to.equal(0);
             expect(mitch.calculateValueAtPrice(stock_price_record)).to.equal(0);
         });
         it("Adds a good record successfully", function () {
@@ -21,14 +21,14 @@ describe("Employee tests", function () {
             var stock_price_record = new stocks.StockPriceRecord(moment(),9);
             var value = 0;
             expect(mitch._employee_id).to.equal("Mitchell");
-            expect(mitch.stock_records).to.deep.equal([]);
+            expect(mitch.stock_records.length).to.equal(0);
             value = mitch.calculateValueAtPrice(stock_price_record);
             expect(value).to.equal(0);
             mitch.addRecordToPorfilio(vest_stock_record);
             expect(mitch.stock_records.length).to.equal(1);
             value = mitch.calculateValueAtPrice(stock_price_record);
             expect(value).to.equal(900);
-            value = mitch.calculateEarningsAtPrice(stock_price_record);
+            value = mitch.calculatePotentialEarningsAtPrice(stock_price_record);
             expect(value).to.equal(400);
         });
     });

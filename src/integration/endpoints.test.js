@@ -10,7 +10,7 @@ var request = require('request').defaults({
 // const SERVICE_ENDPOINT = 'https://asdf12345.execute-api.us-west-2.amazonaws.com/dev';
 
 
-describe("Integration tests for endpoints", function () {
+describe.skip("Integration tests for endpoints", function () {
     this.timeout(2000);
     describe("Make sure the SERVICE_ENDPOINT has been set properly", function () {
         it("Passes a regex check", function () {
