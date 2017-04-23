@@ -6,12 +6,15 @@ class SortedList extends Array {
      * Create a sorted list
      * @param compare_function - Desired function to use to sort,
      * @param args
+     * @see {@link https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/sort?v=control}
      */
     constructor(compare_function, ...args) {
         super(...args);
         if (typeof compare_function === "function") {
+            // Use the custom sort function
             this._compare_function = compare_function;
         } else {
+            // Trust in the normal comparison operators to be a good sort function
             this._compare_function = function (a, b) {
                 if (a < b) {
                     return -1;

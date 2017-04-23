@@ -153,6 +153,7 @@ describe("Portfolio tests", function () {
         var count = 1000;
         var quantity = 10;
         var price = 1;
+        var stock_price_record = new stocks.StockPriceRecord(moment(), 250);
 
         it("can create a massive portfolio quickly", function () {
             for (var i = 0; i < count; i++) {
@@ -172,8 +173,10 @@ describe("Portfolio tests", function () {
             expect(massive_portfolio.value_vested).to.equal(count * quantity * price);
             expect(massive_portfolio.value_sold).to.equal(0);
             expect(massive_portfolio.value_earned).to.equal(0);
+            expect(massive_portfolio.valueAtPrice(stock_price_record)).to.equal(count * quantity*250);
+            expect(massive_portfolio.earningsIfSoldAtPrice(stock_price_record)).to.equal(count * quantity*249);
         });
-        it("accurately caches data for quick retrieval", function () {
+        it("accurately memoizes data for quick retrieval", function () {
             this.timeout(3);
             expect(massive_portfolio.stock_quantity).to.equal(count * quantity);
             expect(massive_portfolio.stock_records.length).to.equal(count);
@@ -181,6 +184,8 @@ describe("Portfolio tests", function () {
             expect(massive_portfolio.value_vested).to.equal(count * quantity * price);
             expect(massive_portfolio.value_sold).to.equal(0);
             expect(massive_portfolio.value_earned).to.equal(0);
+            expect(massive_portfolio.valueAtPrice(stock_price_record)).to.equal(count * quantity*250);
+            expect(massive_portfolio.earningsIfSoldAtPrice(stock_price_record)).to.equal(count * quantity*249);
         });
         it("updates data if a Perf record is added", function () {
             // Add a Perf record halfway between Jan 1 1970 and now, halfway thru the portfolio.
@@ -195,7 +200,7 @@ describe("Portfolio tests", function () {
             expect(massive_portfolio.value_vested).to.be.below(count * quantity * price * 1.6);
             expect(massive_portfolio.value_sold).to.equal(0);
         });
-        it("still accurately caches data for quick retrieval", function () {
+        it("still accurately memoized data for quick retrieval", function () {
             this.timeout(3);
             expect(massive_portfolio.stock_quantity).to.be.above(count * quantity * 1.4);
             expect(massive_portfolio.stock_quantity).to.be.below(count * quantity * 1.6);
@@ -203,6 +208,10 @@ describe("Portfolio tests", function () {
             expect(massive_portfolio.value_vested).to.be.above(count * quantity * price * 1.4);
             expect(massive_portfolio.value_vested).to.be.below(count * quantity * price * 1.6);
             expect(massive_portfolio.value_sold).to.equal(0);
+            expect(massive_portfolio.valueAtPrice(stock_price_record)).to.be.above(count * quantity*250 * 1.4);
+            expect(massive_portfolio.valueAtPrice(stock_price_record)).to.be.below(count * quantity*250 * 1.6);
+            expect(massive_portfolio.earningsIfSoldAtPrice(stock_price_record)).to.be.above(count * quantity*249 * 1.4);
+            expect(massive_portfolio.earningsIfSoldAtPrice(stock_price_record)).to.be.below(count * quantity*249 * 1.6);
         });
         it("updates data if the calculation moment is changes", function () {
             massive_portfolio.calculate_until = moment.unix(now_unix_timestamp / 4);
