@@ -10,33 +10,33 @@ describe("Stocks tests", function () {
         it("Errors out when the line is not provided", function () {
             expect(function () {
                 stocks.parseRecordLine();
-            }).to.throw(stocks.ParserError);
+            }).to.throw(stocks.Error, 'Bad line'); // Testing for ParserError specifically does not work in ES5-
         });
         it("Errors out when the line is an empty string", function () {
             expect(function () {
                 stocks.parseRecordLine("");
-            }).to.throw(stocks.ParserError);
+            }).to.throw(stocks.Error, "Empty line");
         });
         it("Errors out when the line doesn't have enough comma separated values", function () {
             expect(function () {
                 stocks.parseRecordLine("VEST,00E");
-            }).to.throw(stocks.ParserError);
+            }).to.throw(stocks.Error, /Bad line format/);
         });
         it("Errors out when the line does not have a valid code", function () {
             expect(function () {
                 stocks.parseRecordLine("SHIRT,00E,20140101,1000,0.5");
-            }).to.throw(stocks.ParserError);
+            }).to.throw(stocks.Error, /Bad type code/);
         });
         it("Errors out when the line is invalid", function () {
             expect(function () {
                 stocks.parseRecordLine("VEST,002B,20120102,1000,KEVIN");
-            }).to.throw(stocks.ParserError);
+            }).to.throw(stocks.Error);
             expect(function () {
                 stocks.parseRecordLine("VEST,002B,20120102,KEVIN,1");
-            }).to.throw(stocks.ParserError);
+            }).to.throw(stocks.Error);
             expect(function () {
                 stocks.parseRecordLine("VEST,002B,20120102,KEVIN,KEVIN");
-            }).to.throw(stocks.ParserError);
+            }).to.throw(stocks.Error);
         });
         it("Returns a valid VestStockRecord when a valid line is passed in", function () {
             var record = stocks.parseRecordLine("VEST,002B,20120102,1000,0.45");

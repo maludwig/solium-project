@@ -150,7 +150,7 @@ describe("Portfolio tests", function () {
     describe("Massive portfolio", function () {
         var massive_portfolio = new Portfolio();
         var now_unix_timestamp = moment().unix();
-        var count = 10000;
+        var count = 1000;
         var quantity = 10;
         var price = 1;
 

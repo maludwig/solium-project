@@ -29,7 +29,7 @@ describe("Sorted List", function () {
         });
         it("can do a reverse sort", function () {
             var sorted_list = new SortedList();
-            sorted_list._sort_function = function (a, b) {
+            sorted_list._compare_function = function (a, b) {
                 return b - a;
             }
             expect(sorted_list.length).to.equal(0);
@@ -63,6 +63,21 @@ describe("Sorted List", function () {
             expect(sorted_list[1].isSame(moment('2012-01-01'))).to.be.true;
             expect(sorted_list[2].isSame(moment('2012-01-01'))).to.be.true;
             expect(sorted_list[3].isSame(moment('2013-01-01'))).to.be.true;
+        });
+        it("correctly enumerates list", function () {
+            var sorted_list = new SortedList(function (a, b) {
+                return a - b;
+            });
+            sorted_list.insert(3);
+            expect(sorted_list.length).to.equal(1);
+            sorted_list.insert(4);
+            expect(sorted_list.length).to.equal(2);
+            sorted_list.insert(2);
+            expect(sorted_list.length).to.equal(3);
+            sorted_list.insert(3);
+            for(var item of sorted_list) {
+                expect(item).to.be.within(2,4);
+            }
         });
     });
 });

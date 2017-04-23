@@ -7,18 +7,31 @@ var stocks = require('../obj/stocks');
 var SortedList = require('../obj/sorted-list');
 var Holding = require('../obj/holding');
 
-function holdingSortFunction (holding_a, holding_b) {
+/**
+ * Comparison function, compares Holdings by their price, used to sort lowest to highest
+ * @param {Holding} holding_a
+ * @param {Holding} holding_b
+ * @returns {Number} - See Array.sort() comparison function documentation
+ */
+function comparePrices (holding_a, holding_b) {
     return holding_a.price - holding_b.price;
 }
-function recordSortFunction (stock_record_a, stock_record_b) {
+/**
+ * Comparison function, compares StockRecords by their sort_order property, used to sort earliest to
+ * latest, with a secondary ordering by priority, see StockRecord.sort_order documentation
+ * @param {StockRecord} stock_record_a
+ * @param {StockRecord} stock_record_b
+ * @returns {Number} - See Array.sort() comparison function documentation
+ */
+function compareSortOrder (stock_record_a, stock_record_b) {
     return stock_record_a.sort_order - stock_record_b.sort_order;
-};
+}
 
 
 class Portfolio {
     constructor() {
-        this._stock_records = new SortedList(recordSortFunction);
-        this._holdings = new SortedList(holdingSortFunction);
+        this._stock_records = new SortedList(compareSortOrder);
+        this._holdings = new SortedList(comparePrices);
 
         // Aggregation variables for memoization
         this._stock_quantity = 0;
@@ -125,7 +138,7 @@ class Portfolio {
         this._value_purchased = 0;
         this._value_invested = 0;
         this._value_sold = 0;
-        this._holdings = new SortedList(holdingSortFunction);
+        this._holdings = new SortedList(comparePrices);
 
         // Recalculate aggregation variables
         for (var stock_record of this._stock_records) {
