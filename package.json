@@ -14,9 +14,9 @@
     "request": "^2.81.0"
   },
   "scripts": {
-    "test": "mocha src/test",
-    "test-integration": "mocha src/integration",
-    "test-all": "mocha src/test src/integration",
+    "test": "mocha lib/test",
+    "test-integration": "mocha lib/integration",
+    "test-all": "mocha lib/test lib/integration",
     "build": "babel src/ -d lib/",
     "watch": "babel src/ -d lib/ --watch",
     "deploy": "serverless deploy -v"

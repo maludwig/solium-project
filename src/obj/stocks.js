@@ -23,8 +23,16 @@ class ParserError extends Error {
  * @returns {string} - The formatted string
  */
 function roundedString(num) {
-    var power = Math.pow(10, 2);
-    return (Math.round(num * power) / power).toFixed(2);
+    return (Math.round(num * 100) / 100).toFixed(2);
+}
+
+/**
+ * Rounds a number to 2 decimal places (rounds up)
+ * @param {Number} num - The number to round
+ * @returns {Number} - The rounded number
+ */
+function roundCurrency(num) {
+    return Math.round(num * 100) / 100;
 }
 
 /**
@@ -377,6 +385,7 @@ class SaleStockRecord extends StockRecord {
 // the files, and be sure that I'd updated every subclass. As a result, they're all here now.
 module.exports = {
     roundedString,
+    roundCurrency,
     ParserError,
     parseRecordLine,
     parseRecord,

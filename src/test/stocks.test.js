@@ -56,6 +56,16 @@ describe("Stocks tests", function () {
             expect(record.grant_price).to.equal(0.45);
             expect(record.toString()).to.equal("VEST,002B,20120102,1000,0.45");
         });
+        it("Returns a valid VestStockRecord when a valid line with a fractional quantity is passed in", function () {
+            var record = stocks.parseRecordLine("VEST,002B,20120102,0.4,1");
+            expect(record instanceof stocks.VestStockRecord).to.be.true;
+            expect(record.type_code).to.equal("VEST");
+            expect(record._employee_id).to.equal("002B");
+            expect(record.moment_recorded.isSame(moment("2012-01-02", "YYYY-MM-DD"))).to.be.true;
+            expect(record.amount).to.equal(0.4);
+            expect(record.grant_price).to.equal(1);
+            expect(record.toString()).to.equal("VEST,002B,20120102,0.4,1.00");
+        });
         it("Returns a valid PerfStockRecord when a valid line is passed in", function () {
             var record = stocks.parseRecordLine("PERF,001B,20130102,1.5");
             expect(record instanceof stocks.PerfStockRecord).to.be.true;

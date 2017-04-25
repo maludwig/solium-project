@@ -13,12 +13,14 @@ var Portfolio = require('../obj/portfolio');
 var Employee = require('../obj/employee');
 var EmployeeDirectory = require('../obj/employee-directory');
 
-// Change this to match the ServiceEndpoint item in the output of ```$ serverless deploy -v```
-// const SERVICE_ENDPOINT = 'https://asdf12345.execute-api.us-west-2.amazonaws.com/dev';
-
+/**
+ * Creates a test function for testing a given sample file
+ * @param {String} input_file_path - File path to input
+ * @param {String} expected_output_file_path - File path to output
+ * @returns {Function}
+ */
 function generateHandler (input_file_path, expected_output_file_path) {
     return function (done) {
-//        var test_process = spawn('node', ['src/solve-sample1-20140101.js']);
         var test_process = spawn('node', ['main.js']);
         var full_stdout_data = '';
         var full_stderr_data = '';
@@ -31,6 +33,7 @@ function generateHandler (input_file_path, expected_output_file_path) {
         fs.createReadStream(input_file_path).pipe(test_process.stdin);
         test_process.on('close', (code) => {
             var verify_file_contents = fs.readFileSync(expected_output_file_path, { encoding : 'utf8'});
+            fs.writeFileSync("boo.def", full_stdout_data);
             console.log(`Ended with ${code}\nSTDOUT:\n${full_stdout_data}\n\nSTDERR:\n${full_stderr_data}\n\n`);
             expect(full_stdout_data).to.equal(verify_file_contents);
             done();
@@ -49,6 +52,10 @@ describe("Integration test to confirm that sample inputs produce correct output"
     describe("Third sample", function () {
         it("Works with the date set to 20140101", generateHandler('templates/sample3-20140101-in.def', 'templates/sample3-20140101-out.def'));
         it("Works with the date set to 20130101", generateHandler('templates/sample3-20130101-in.def', 'templates/sample3-20130101-out.def'));
+    });
+    describe("Unicode works", function () {
+        it("correctly handles Nords", generateHandler('templates/unicode1-in.def', 'templates/unicode1-out.def'));
+        it("correctly handles the secret Russian accounts, encrypted with city names", generateHandler('templates/unicode2-in.def', 'templates/unicode2-out.def'));
     });
     describe("Third sample in detail", function () {
         it("can do sample3, with vest, sale, and perf records correctly", function () {

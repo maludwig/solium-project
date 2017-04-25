@@ -15,9 +15,10 @@ var Holding = require('../obj/holding');
  * @returns {Number} - See Array.sort() comparison function documentation
  * @see {@link https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/sort?v=control}
  */
-function comparePrices (holding_a, holding_b) {
+function comparePrices(holding_a, holding_b) {
     return holding_a.price - holding_b.price;
 }
+
 /**
  * Comparison function, compares StockRecords by their sort_order property, used to sort earliest to
  * latest, with a secondary ordering by priority, see StockRecord.sort_order documentation
@@ -26,7 +27,7 @@ function comparePrices (holding_a, holding_b) {
  * @returns {Number} - See Array.sort() comparison function documentation
  * @see {@link https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/sort?v=control}
  */
-function compareSortOrder (stock_record_a, stock_record_b) {
+function compareSortOrder(stock_record_a, stock_record_b) {
     return stock_record_a.sort_order - stock_record_b.sort_order;
 }
 
@@ -128,7 +129,7 @@ class Portfolio {
     set calculate_until(value) {
         var moment_value = moment(value);
         // Many operations will set the moment to the same value, resulting in unnecessary recalculations
-        if(!moment_value.isSame(this._calculation_until)) {
+        if (!moment_value.isSame(this._calculation_until)) {
             this._calculation_until = moment_value;
             this._dirty = true;
         }
@@ -160,7 +161,7 @@ class Portfolio {
         this._share_quantity -= quantity;
         this._value_sold += quantity * price;
         // Sell cheapest stock first, loop through holdings until you've sold enough.
-        for(var holding of this._inventory) {
+        for (var holding of this._inventory) {
             if (quantity_remaning < 0) {
                 // No need to keep looping if we're done finding shares to sell
                 break;
@@ -183,7 +184,7 @@ class Portfolio {
     multiplyStock(multiplier) {
         this._share_quantity *= multiplier;
         this._value_vested *= multiplier;
-        for(var holding of this._inventory) {
+        for (var holding of this._inventory) {
             holding.quantity *= multiplier;
         }
     }
@@ -242,8 +243,16 @@ class Portfolio {
      * @returns {Number} - Earnings from selling remaining shares
      */
     earningsIfSoldAtPrice(stock_price_record) {
+        var total_sales = 0;
         this.calculate_until = stock_price_record.moment_recorded;
-        return (this.stock_quantity * stock_price_record.market_price) - this.value_vested;
+        if (this._dirty) this.recalculateAggregations();
+        // return (this.stock_quantity * stock_price_record.market_price) - this.value_vested;
+        for (var holding of this._inventory) {
+            if(holding.price < stock_price_record.market_price) {
+                total_sales += holding.quantity * (stock_price_record.market_price - holding.price);
+            }
+        }
+        return stocks.roundCurrency(total_sales);
     }
 }
 

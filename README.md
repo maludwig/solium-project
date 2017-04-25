@@ -8,15 +8,31 @@ Older versions of Node may work after building with Babel
 
 ### Getting started locally
 
-First, clone down the repo:
-```
-$ git clone https://github.com/maludwig/solium-project.git
-```
-
 From the project directory, run the following to pull down all dependencies:
 ```
 $ npm install
 ```
+
+If you have Node 7 or higher, you're done! Just run it!
+
+```
+$ node main.js < YOUR_INPUT_FILE.def
+```
+
+### Try the serverless version!
+ 
+ Simply use your favorite tool to do a normal POST request with the input file as the request body:
+ 
+ ##### cURL
+```
+$ curl -X POST --data "$(cat YOUR_INPUT_FILE.def)" https://6690k4mle0.execute-api.us-west-2.amazonaws.com/dev/calc
+```
+##### httpie
+```
+$ http https://6690k4mle0.execute-api.us-west-2.amazonaws.com/dev/calc < YOUR_INPUT_FILE.def
+```
+
+### You have an early version of Node and you don't want to upgrade
 
 Then build the project with babel to transpile it down to more compatible Javascript, a "lib" directory should
 appear under the project directory:
@@ -69,7 +85,7 @@ You can type "aws sts get-caller-identity" to confirm that your credentials are 
 $ aws sts get-caller-identity
 {
     "Account": "987653851234",
-    "UserId": "AIDAITWIMSOIVFCW5CU9O",
+    "UserId": "AIDAITWIMSOIVFCW5CBBQ",
     "Arn": "arn:aws:iam::987653851234:user/blankservice"
 }
 ```

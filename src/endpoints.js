@@ -1,5 +1,5 @@
 'use strict';
-
+var input_handling = require("./obj/input-handling");
 const HTTP_STATUS_CODES = {
     OK: '200',
     MOVED_PERMANENTLY: '301',
@@ -51,5 +51,13 @@ module.exports = {
         console.log({event, context});
         console.log("-------");
         failure(callback, "Test bad request response", HTTP_STATUS_CODES.BAD_REQUEST);
+    },
+    calc (event, context, callback) {
+        try {
+            var output = input_handling.handleString(event.body);
+            success(callback, output, "text/csv");
+        } catch (ex) {
+            failure(callback, ex.getMessage());
+        }
     },
 }

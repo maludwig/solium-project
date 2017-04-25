@@ -140,11 +140,41 @@ describe("Portfolio tests", function () {
             expect(portfolio.value_earned).to.equal((2*300)-(2*100));
             expect(portfolio.earningsIfSoldAtPrice(stock_price_record)).to.equal((4*250)-(4*100));
         });
-
-
-
-
-
+        it("earnings function properly on fractional quantities", function () {
+            var portfolio = new Portfolio();
+            var stock_price_record = new stocks.StockPriceRecord(moment(), 250);
+            portfolio.addRecord(new stocks.parseRecordLine("VEST,001B,20120102,0.4,100"));
+            expect(portfolio.stock_quantity).to.equal(0.4);
+            expect(portfolio.value_vested).to.equal(40);
+            expect(portfolio.value_purchased).to.equal(0);
+            expect(portfolio.value_sold).to.equal(0);
+            expect(portfolio.value_earned).to.equal(0);
+            expect(portfolio.earningsIfSoldAtPrice(stock_price_record)).to.equal(60);
+            portfolio.addRecord(new stocks.parseRecordLine("SALE,001B,20120102,0.2,300"));
+            expect(portfolio.stock_quantity).to.equal(0.2);
+            expect(portfolio.value_vested).to.equal(20);
+            expect(portfolio.value_purchased).to.equal(20);
+            expect(portfolio.value_sold).to.equal(60);
+            expect(portfolio.value_earned).to.equal((0.2*300)-(0.2*100));
+            expect(portfolio.earningsIfSoldAtPrice(stock_price_record)).to.equal((0.2*250)-(0.2*100));
+            portfolio.addRecord(new stocks.parseRecordLine("PERF,001B,20130102,2"));
+            expect(portfolio.stock_quantity).to.equal(0.4);
+            expect(portfolio.value_vested).to.equal(40);
+            expect(portfolio.value_purchased).to.equal(20);
+            expect(portfolio.value_sold).to.equal(60);
+            expect(portfolio.value_earned).to.equal((0.2*300)-(0.2*100));
+            expect(portfolio.earningsIfSoldAtPrice(stock_price_record)).to.equal((0.4*250)-(0.4*100));
+        });
+        it("earnings function properly on negative lines", function () {
+            var portfolio = new Portfolio();
+            var stock_price_record = new stocks.StockPriceRecord(moment(), 250);
+            portfolio.addRecord(new stocks.parseRecordLine("VEST,001B,20120102,1,100"));
+            expect(portfolio.earningsIfSoldAtPrice(stock_price_record)).to.equal(150);
+            portfolio.addRecord(new stocks.parseRecordLine("VEST,001B,20120102,1,300"));
+            expect(portfolio.earningsIfSoldAtPrice(stock_price_record)).to.equal(150);
+            portfolio.addRecord(new stocks.parseRecordLine("VEST,001B,20120102,1,50"));
+            expect(portfolio.earningsIfSoldAtPrice(stock_price_record)).to.equal(350);
+        });
 
     });
     describe("Massive portfolio", function () {

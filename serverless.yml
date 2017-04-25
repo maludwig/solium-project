@@ -2,7 +2,7 @@
 # Primary Source: https://serverless.com/framework/docs/providers/aws/guide/serverless.yml/
 # Events Source: https://serverless.com/framework/docs/providers/aws/events/apigateway/
 
-service: BLANKSERVICE
+service: solium-project
 
 provider:
   name: aws
@@ -20,35 +20,10 @@ package:
     - node_modules/moment/**
 
 functions:
-  echo:
-    handler: lib/endpoints.echo
-    description: Repeats the input back to the requestor
+  calc:
+    handler: lib/endpoints.calc
+    description: Runs a calculation on vesting data
     events:
       - http:
-          path: echo
-          method: get
-          cors: true
-      - http:
-          path: echo
-          method: post
-          cors: true
-  simulate_failure:
-    handler: lib/endpoints.simulate_failure
-    description: Fails with an HTTP 500 error response
-    events:
-      - http:
-          path: failure
-          method: get
-      - http:
-          path: failure
-          method: post
-  simulate_bad_request:
-    handler: lib/endpoints.simulate_bad_request
-    description: Fails with an HTTP 400 error response
-    events:
-      - http:
-          path: bad
-          method: get
-      - http:
-          path: bad
+          path: calc
           method: post

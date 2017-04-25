@@ -1,16 +1,20 @@
 /**
  * Created by Mitchell on 4/19/2017.
  */
+var fs = require('fs');
 var expect = require('chai').expect;
 var request = require('request').defaults({
     json: true,
 });
 
 // Change this to match the ServiceEndpoint item in the output of ```$ serverless deploy -v```
-// const SERVICE_ENDPOINT = 'https://asdf12345.execute-api.us-west-2.amazonaws.com/dev';
+const SERVICE_ENDPOINT = 'https://6690k4mle0.execute-api.us-west-2.amazonaws.com/dev';
 
 
-describe.skip("Integration tests for endpoints", function () {
+/**
+ * Tests the Amazon API Gateway / Lambda integration
+ */
+describe("Integration tests for endpoints", function () {
     this.timeout(2000);
     describe("Make sure the SERVICE_ENDPOINT has been set properly", function () {
         it("Passes a regex check", function () {
@@ -19,99 +23,28 @@ describe.skip("Integration tests for endpoints", function () {
             expect(ENDPOINT_VALIDATING_REGEX.test(SERVICE_ENDPOINT)).to.be.true;
         });
     });
-    describe("echo function", function () {
-        it("GET returns an HTTP 200 JSON response containing an event and a context", function (done) {
-            request.get({
-                url: `${SERVICE_ENDPOINT}/echo`,
-                headers: {
-                    "Authorization": "Token THISISATOKEN",
-                },
-            }, function (error, response, body) {
-                expect(error).to.be.null;
-                expect(response.statusCode).to.equal(200);
-                expect(response.headers['content-type']).to.equal("application/json");
-                expect(response.headers["access-control-allow-origin"]).to.equal("*");
-                expect(response.headers["access-control-allow-credentials"]).to.equal("true");
-                expect(body.error).to.be.undefined;
-                expect(body.data.event).to.exist;
-                expect(body.data.event.headers['Authorization']).to.equal("Token THISISATOKEN");
-                expect(body.data.context).to.exist;
-                done();
+    describe("/calc endpoint", function () {
+        function generateTest(input_path, expected_output_path) {
+            it(`POST ${input_path}`, function (done) {
+                var expected_output = fs.readFileSync(expected_output_path).toString();
+                fs.createReadStream(input_path).pipe(request.post({
+                    url: `${SERVICE_ENDPOINT}/calc`,
+                }, function (error, response, body) {
+                    expect(error).to.be.null;
+                    expect(response.statusCode).to.equal(200);
+                    expect(body).to.equal(expected_output);
+                    done();
+                }));
             });
-        });
-        it("POST returns an HTTP 200 JSON response containing an event and a context, the event body is the uploaded JSON", function (done) {
-            var upload_data = {
-                name: "Mitchell"
-            };
-            request.post({
-                url: `${SERVICE_ENDPOINT}/echo`,
-                headers: {
-                    "Authorization": "Token THISISATOKEN",
-                },
-                json: upload_data,
-            }, function (error, response, body) {
-                expect(error).to.be.null;
-                expect(response.statusCode).to.equal(200);
-                expect(response.headers['content-type']).to.equal("application/json");
-                expect(response.headers["access-control-allow-origin"]).to.equal("*");
-                expect(response.headers["access-control-allow-credentials"]).to.equal("true");
-                expect(body.error).to.be.undefined;
-                expect(body.data.event).to.exist;
-                expect(body.data.event.headers['Authorization']).to.equal("Token THISISATOKEN");
-                expect(body.data.event.body).to.equal(JSON.stringify(upload_data));
-                expect(body.data.context).to.exist;
-                done();
-            });
-        });
-    });
-
-    describe("simulate_failure function", function () {
-        it("GET returns an HTTP 500 response", function (done) {
-            request.get({
-                url: `${SERVICE_ENDPOINT}/failure`,
-            }, function (error, response, body) {
-                expect(error).to.be.null;
-                expect(response.statusCode).to.equal(500);
-                expect(body.error).to.equal("Test failure response");
-                expect(body.data).to.be.undefined;
-                done();
-            });
-        });
-        it("POST returns an HTTP 500 response", function (done) {
-            request.post({
-                url: `${SERVICE_ENDPOINT}/failure`,
-            }, function (error, response, body) {
-                expect(error).to.be.null;
-                expect(response.statusCode).to.equal(500);
-                expect(body.error).to.equal("Test failure response");
-                expect(body.data).to.be.undefined;
-                done();
-            });
-        });
-    });
-
-    describe("simulate_bad_request function", function () {
-        it("GET returns an HTTP 400 response", function (done) {
-            request.get({
-                url: `${SERVICE_ENDPOINT}/bad`,
-            }, function (error, response, body) {
-                expect(error).to.be.null;
-                expect(response.statusCode).to.equal(400);
-                expect(body.error).to.equal("Test bad request response");
-                expect(body.data).to.be.undefined;
-                done();
-            });
-        });
-        it("POST returns an HTTP 400 response", function (done) {
-            request.post({
-                url: `${SERVICE_ENDPOINT}/bad`,
-            }, function (error, response, body) {
-                expect(error).to.be.null;
-                expect(response.statusCode).to.equal(400);
-                expect(body.error).to.equal("Test bad request response");
-                expect(body.data).to.be.undefined;
-                done();
-            });
-        });
-    });
+        }
+        generateTest('./templates/sample1-20120615-in.def', './templates/sample1-20120615-out.def');
+        generateTest('./templates/sample1-20140101-in.def', './templates/sample1-20140101-out.def');
+        generateTest('./templates/sample2-20130101-in.def', './templates/sample2-20130101-out.def');
+        generateTest('./templates/sample2-20140101-in.def', './templates/sample2-20140101-out.def');
+        generateTest('./templates/sample3-20130101-in.def', './templates/sample3-20130101-out.def');
+        generateTest('./templates/sample3-20140101-in.def', './templates/sample3-20140101-out.def');
+        generateTest('./templates/unicode1-in.def', './templates/unicode1-out.def');
+        generateTest('./templates/unicode2-in.def', './templates/unicode2-out.def');
+        generateTest('./templates/negative-in.def', './templates/negative-out.def');
+    })
 });
